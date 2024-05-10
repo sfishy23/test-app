@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Header } from "./components/Header";
 import { Loader } from "./components/Loader";
 import { FolderLayout } from "./components/FolderLayout";
 import { convertObjectToArray } from "./utils";
 
-function App() {
+export const DirectoryContext = React.createContext();
+
+export default function App() {
   const [loading, setLoading] = useState(false);
   const [folders, setFolders] = useState(null);
   const [currentDirectory, setCurrentDirectory] = useState("");
@@ -14,6 +16,15 @@ function App() {
 
   useEffect(() => {
     const abortController = new AbortController();
+
+    const fetchData = async (signal) => {
+      const url =
+        process.env.REACT_APP_API_KEY + "/files?path=" + currentDirectory;
+
+      const response = await fetch(url, { signal });
+      const data = await response.json();
+      return data;
+    };
 
     setLoading(true);
     fetchData(abortController.signal)
@@ -31,42 +42,22 @@ function App() {
       // firing. Assumption its react strict mode (rerenders twice on each render) that is causing the first call to fail
       abortController.abort();
     };
-  }, []);
-
-  const fetchData = async (signal) => {
-    const url = process.env.REACT_APP_API_KEY + "/files?path=";
-
-    const response = await fetch(url, { signal });
-    const data = await response.json();
-    return data;
-  };
+  }, [currentDirectory]);
 
   return (
     <div className="flex flex-col h-screen bg-base-100">
       <Header />
-      <div className="w-full flex flex-col justify-center items-center p-10">
-        <div>
+      <DirectoryContext.Provider
+        value={{ currentDirectory, setCurrentDirectory }}
+      >
+        <div className="w-full flex flex-col justify-center items-center p-10">
           {loading && <Loader />}
-          <div>
-            <button
-              onClick={() => console.log(folders)}
-              className="bg-primary hover:bg-accent text-white font-bold py-2 px-4 rounded text-xl"
-            >
-              list data
-            </button>
-          </div>
-          <div>
-            {!loading && folders && (
-              <FolderLayout
-                data={convertObjectToArray(folders)}
-                currentDir={currentDirectory}
-              />
-            )}
-          </div>
+
+          {!loading && folders && (
+            <FolderLayout data={convertObjectToArray(folders)} />
+          )}
         </div>
-      </div>
+      </DirectoryContext.Provider>
     </div>
   );
 }
-
-export default App;
