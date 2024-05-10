@@ -3,10 +3,12 @@ import "./App.css";
 import { Header } from "./components/Header";
 import { Loader } from "./components/Loader";
 import { FolderLayout } from "./components/FolderLayout";
+import { convertObjectToArray } from "./utils";
 
 function App() {
   const [loading, setLoading] = useState(false);
   const [folders, setFolders] = useState(null);
+  const [currentDirectory, setCurrentDirectory] = useState("");
   // TODO store error in this state to be surfaced in modal or banner
   // const [error, setError] = useState(null);
 
@@ -27,21 +29,16 @@ function App() {
     return () => {
       // TODO there is an error being surfaced here, have tried a few changes but abort controller is still
       // firing. Assumption its react strict mode (rerenders twice on each render) that is causing the first call to fail
-      // abortController.abort();
+      abortController.abort();
     };
   }, []);
 
   const fetchData = async (signal) => {
-    const url = process.env.REACT_APP_API_KEY + "/files?path=some/other";
+    const url = process.env.REACT_APP_API_KEY + "/files?path=";
 
     const response = await fetch(url, { signal });
     const data = await response.json();
     return data;
-  };
-
-  const convertObjectToArray = (object) => {
-    let arr = Array.from(Object.entries(object), ([key, value]) => value);
-    return arr;
   };
 
   return (
@@ -60,7 +57,10 @@ function App() {
           </div>
           <div>
             {!loading && folders && (
-              <FolderLayout data={convertObjectToArray(folders)} />
+              <FolderLayout
+                data={convertObjectToArray(folders)}
+                currentDir={currentDirectory}
+              />
             )}
           </div>
         </div>
