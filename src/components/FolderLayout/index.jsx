@@ -12,7 +12,6 @@ export const FolderLayout = ({ data }) => {
 
   return (
     <div className="bg-white border-2 border-accent shadow-lg p-4 min-w-[720px]">
-      {/* HEADING */}
       <div className="flex justify-between p-4 bg-secondary mb-8">
         <h4 className="text-xl text-left text-primary">
           {currentDirectory === "" ? "Home/" : currentDirectory}
@@ -26,7 +25,6 @@ export const FolderLayout = ({ data }) => {
           </div>
         )}
       </div>
-      {/* ROWS */}
       {data.map((row, index) => {
         return <RowLayout key={index} title={row.name} type={row.type} />;
       })}
