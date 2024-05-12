@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { Header } from "./components/Header";
-import { Loader } from "./components/Loader";
-import { FolderLayout } from "./components/FolderLayout";
+import { Header, Loader, FolderLayout, Modal } from "./components";
 import { convertObjectToArray } from "./utils";
 import { useApi } from "./hooks/useApi";
 
@@ -12,6 +10,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [folders, setFolders] = useState(null);
   const [currentDirectory, setCurrentDirectory] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
 
   const { error, manuallySetError } = useApi();
 
@@ -47,13 +47,25 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen bg-base-100">
+      {showModal && (
+        <div className="w-full h-screen absolute top-0 left-0 opacity-50 bg-white z-10" />
+      )}
       <Header />
+      <Modal
+        content={<>abcdefg</>}
+        showModal={showModal}
+        setShowModal={setShowModal}
+      />
       <DirectoryContext.Provider
         value={{
           currentDirectory,
           setCurrentDirectory,
           setFolders,
           setLoading,
+          showModal,
+          setShowModal,
+          modalContent,
+          setModalContent,
         }}
       >
         {/* TODO error handling here */}

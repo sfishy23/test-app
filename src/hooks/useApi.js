@@ -38,6 +38,21 @@ export const useApi = () => {
     }
   };
 
+  const createNewFolder = async (data = {}) => {
+    try {
+      const url = baseUrl + "/files";
+      await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      setError(error);
+    }
+  };
+
   const clearAllErrors = () => {
     setError(null);
   };
@@ -52,5 +67,6 @@ export const useApi = () => {
     manuallySetError,
     error,
     deleteFolder,
+    createNewFolder,
   };
 };

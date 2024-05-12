@@ -1,18 +1,41 @@
 import React, { useContext } from "react";
-import { RowLayout } from "../RowLayout";
-import { BackIcon } from "../BackIcon";
 import { DirectoryContext } from "../../App";
-import { AddIcon } from "../AddIcon";
-import { IconWrapper } from "../IconWrapper";
+import { useApi } from "../../hooks/useApi";
+import { RowLayout, BackIcon, AddIcon, IconWrapper } from "../index";
 
 export const FolderLayout = ({ data }) => {
-  const { currentDirectory, setCurrentDirectory } =
-    useContext(DirectoryContext);
+  const { createNewFolder, fetchAllFoldersInPath } = useApi();
+  const {
+    currentDirectory,
+    setCurrentDirectory,
+    setLoading,
+    setFolders,
+    setShowModal,
+  } = useContext(DirectoryContext);
 
   if (!data) return null;
 
   const handleNavigateBack = () => {
     console.log("back");
+  };
+
+  const handleAddNewFolder = async (newDirectoryName) => {
+    const path = currentDirectory + "/" + newDirectoryName;
+    const body = {
+      path: path,
+    };
+
+    // room for improvement, instead of sending 2 api calls, it would be preferable
+    // to store current data locally, and delete local reference when delete is succesful on the api
+    // but as this is the first draft, 2 api calls is fine
+    setLoading(true);
+    await createNewFolder(body);
+
+    const data = await fetchAllFoldersInPath("/files?path=");
+    setFolders(data);
+
+    setCurrentDirectory("");
+    setLoading(false);
   };
 
   return (
@@ -22,12 +45,12 @@ export const FolderLayout = ({ data }) => {
         <div className="flex h-8 space-x-4">
           <IconWrapper
             icon={<AddIcon fillColor={"#3730a3"} />}
-            clickHandler={() => console.log("add")}
+            clickHandler={() => setShowModal(true)}
           />
           {currentDirectory !== "" && (
             <IconWrapper
               icon={<BackIcon fillColor={"#4f46e5"} />}
-              clickHandler={() => handleNavigateBack}
+              clickHandler={() => handleNavigateBack()}
             />
           )}
         </div>

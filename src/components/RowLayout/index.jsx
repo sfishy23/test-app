@@ -31,13 +31,11 @@ export const RowLayout = ({ title, type }) => {
       path: path,
       isDirectory: true,
     };
-    console.log(body);
 
-    setLoading(true);
-
-    // scope for improvement, instead of sending 2 api calls, it would be preferable
+    // room for improvement, instead of sending 2 api calls, it would be preferable
     // to store current data locally, and delete local reference when delete is succesful on the api
     // but as this is the first draft, 2 api calls is fine
+    setLoading(true);
     await deleteFolder(body);
 
     const data = await fetchAllFoldersInPath("/files?path=");
