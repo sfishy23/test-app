@@ -3,4 +3,8 @@ const convertObjectToArray = (object) => {
   return arr;
 };
 
-export { convertObjectToArray };
+const removeLeadingSlash = (string) => {
+  return string.replace(/^\//, "");
+};
+
+export { convertObjectToArray, removeLeadingSlash };

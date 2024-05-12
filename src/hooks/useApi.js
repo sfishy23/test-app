@@ -21,8 +21,7 @@ export const useApi = () => {
   const deleteFolder = async (data = {}) => {
     try {
       const url = baseUrl + "/files";
-      // Default options are marked with *
-      const response = await fetch(url, {
+      await fetch(url, {
         method: "DELETE",
         mode: "cors",
         cache: "no-cache",
@@ -34,7 +33,6 @@ export const useApi = () => {
         referrerPolicy: "no-referrer",
         body: JSON.stringify(data),
       });
-      return response.json();
     } catch (error) {
       setError(error);
     }

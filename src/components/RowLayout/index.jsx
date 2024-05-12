@@ -3,6 +3,7 @@ import { DirectoryContext } from "../../App";
 import { useApi } from "../../hooks/useApi";
 import { BinIcon } from "../BinIcon";
 import { EditIcon } from "../EditIcon";
+import { IconWrapper } from "../IconWrapper";
 
 export const RowLayout = ({ title, type }) => {
   const { currentDirectory, setCurrentDirectory, setFolders, setLoading } =
@@ -10,29 +11,34 @@ export const RowLayout = ({ title, type }) => {
 
   const { fetchAllFoldersInPath, deleteFolder } = useApi();
 
-  const newDirectoryPath = "/files?path=" + currentDirectory + title + "/";
+  const nextDirTitle = currentDirectory === "" ? title : "/" + title;
+
+  const newDirectoryPath = "/files?path=" + currentDirectory + nextDirTitle;
 
   const handleNavigateIntoFolder = async () => {
     setLoading(true);
     const data = await fetchAllFoldersInPath(newDirectoryPath);
+    console.log(data);
     setFolders(data);
 
-    setCurrentDirectory(newDirectoryPath);
+    setCurrentDirectory(currentDirectory + nextDirTitle);
     setLoading(false);
   };
 
   const handleDeleteFolder = async () => {
-    const path = currentDirectory + title;
+    const path = currentDirectory + nextDirTitle;
     const body = {
       path: path,
       isDirectory: true,
     };
     console.log(body);
+
     setLoading(true);
+
     // scope for improvement, instead of sending 2 api calls, it would be preferable
     // to store current data locally, and delete local reference when delete is succesful on the api
     // but as this is the first draft, 2 api calls is fine
-    // const res = await deleteFolder(body);
+    await deleteFolder(body);
 
     const data = await fetchAllFoldersInPath("/files?path=");
     setFolders(data);
@@ -62,19 +68,15 @@ export const RowLayout = ({ title, type }) => {
       </div>
       <div className="w-1/3">{type}</div>
       <div className="w-24">
-        <div className="flex w-full h-6">
-          <div
-            className="cursor-pointer hover:scale-125 cursor-pointer transition-all duration-300"
-            onClick={() => handleDeleteFolder()}
-          >
-            <BinIcon fillColor={"#ff0000"} />
-          </div>
-          <div
-            className="cursor-pointer hover:scale-125 cursor-pointer transition-all duration-300"
-            onClick={() => handleDeleteFolder()}
-          >
-            <EditIcon fillColor={"#ff0000"} />
-          </div>
+        <div className="flex w-full h-6 justify-around">
+          <IconWrapper
+            icon={<BinIcon fillColor={"#ff0000"} />}
+            clickHandler={() => handleDeleteFolder()}
+          />
+          <IconWrapper
+            icon={<EditIcon />}
+            clickHandler={() => handleRenameFolder()}
+          />
         </div>
       </div>
     </div>
