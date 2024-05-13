@@ -2,7 +2,6 @@ import { useState } from "react";
 
 export const useApi = () => {
   const [error, setError] = useState(null);
-
   const baseUrl = process.env.REACT_APP_API_FOLDERS;
 
   const fetchAllFoldersInPath = async (path, signal) => {
@@ -10,18 +9,21 @@ export const useApi = () => {
 
     try {
       const response = await fetch(url, { signal });
-      // sanitize data
+      if (!response.ok) {
+        setError("Network response error" + response.status);
+        throw new Error("Network response was not ok " + response.status);
+      }
       const data = await response.json();
       return data;
-    } catch (error) {
-      setError(error);
+    } catch (e) {
+      setError(e);
     }
   };
 
   const deleteFolder = async (data = {}) => {
     try {
       const url = baseUrl + "/files";
-      await fetch(url, {
+      const response = await fetch(url, {
         method: "DELETE",
         mode: "cors",
         cache: "no-cache",
@@ -33,38 +35,37 @@ export const useApi = () => {
         referrerPolicy: "no-referrer",
         body: JSON.stringify(data),
       });
-    } catch (error) {
-      setError(error);
+      if (!response.ok) {
+        setError("Network response error" + response.status);
+        throw new Error("Network response was not ok " + response.status);
+      }
+    } catch (e) {
+      setError(e);
     }
   };
 
   const createNewFolder = async (data = {}) => {
     try {
       const url = baseUrl + "/files";
-      await fetch(url, {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-    } catch (error) {
-      setError(error);
+      if (!response.ok) {
+        setError("Network response error" + response.status);
+        throw new Error("Network response was not ok " + response.status);
+      }
+    } catch (e) {
+      setError(e);
     }
-  };
-
-  const clearAllErrors = () => {
-    setError(null);
-  };
-
-  const manuallySetError = (error) => {
-    setError(error);
   };
 
   return {
     fetchAllFoldersInPath,
-    clearAllErrors,
-    manuallySetError,
+    setError,
     error,
     deleteFolder,
     createNewFolder,

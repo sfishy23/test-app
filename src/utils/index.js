@@ -7,4 +7,18 @@ const removeLeadingSlash = (string) => {
   return string.replace(/^\//, "");
 };
 
-export { convertObjectToArray, removeLeadingSlash };
+const trimStringAfterSlash = (str) => {
+  const slashIndex = str.indexOf("/");
+  return slashIndex !== -1 ? str.slice(0, slashIndex) : str;
+};
+
+const stringContainsSlash = (str) => {
+  return str.includes("/");
+};
+
+export {
+  convertObjectToArray,
+  removeLeadingSlash,
+  trimStringAfterSlash,
+  stringContainsSlash,
+};

@@ -8,6 +8,9 @@ import { Header } from "./Header";
 import { Loader } from "./Loader";
 import { FolderLayout } from "./FolderLayout";
 import { Modal } from "./Modal";
+import { ErrorModal } from "./ErrorModal";
+import { AddFolderForm } from "./AddFolderForm";
+import { CloseIcon } from "./CloseIcon";
 
 export {
   BinIcon,
@@ -20,4 +23,7 @@ export {
   Loader,
   FolderLayout,
   Modal,
+  AddFolderForm,
+  ErrorModal,
+  CloseIcon,
 };

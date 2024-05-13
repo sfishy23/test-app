@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { Header, Loader, FolderLayout, Modal } from "./components";
+import { Header, Loader, FolderLayout, Modal, ErrorModal } from "./components";
 import { convertObjectToArray } from "./utils";
 import { useApi } from "./hooks/useApi";
 
@@ -11,9 +11,8 @@ export default function App() {
   const [folders, setFolders] = useState(null);
   const [currentDirectory, setCurrentDirectory] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
-
-  const { error, manuallySetError } = useApi();
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const { error, setError } = useApi();
 
   useEffect(() => {
     // fetch data on first load here, not very elegant because is not sharing error state
@@ -29,13 +28,14 @@ export default function App() {
 
     setLoading(true);
 
+    // catch error manually here due to this being in an effect, so calling the function from the hook is problematic
     fetchData(abortController.signal)
       .then((response) => {
         setFolders(response);
         setLoading(false);
       })
       .catch((error) => {
-        manuallySetError(error);
+        setError(error);
         setLoading(false);
       });
 
@@ -45,17 +45,28 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      setShowErrorModal(true);
+    } else {
+      setShowErrorModal(false);
+    }
+  }, [error]);
+
   return (
-    <div className="flex flex-col h-screen bg-base-100">
-      {showModal && (
-        <div className="w-full h-screen absolute top-0 left-0 opacity-50 bg-white z-10" />
+    <div className="flex flex-col min-h-screen bg-base-100">
+      {((!loading && showModal) || showErrorModal) && (
+        <div className="w-full h-screen absolute top-0 left-0 opacity-90 bg-compliment z-10" />
+      )}
+      {error && (
+        <ErrorModal
+          showModal={showErrorModal}
+          setShowModal={setShowErrorModal}
+          errorDetails={error}
+          setError={setError}
+        />
       )}
       <Header />
-      <Modal
-        content={<>abcdefg</>}
-        showModal={showModal}
-        setShowModal={setShowModal}
-      />
       <DirectoryContext.Provider
         value={{
           currentDirectory,
@@ -64,15 +75,13 @@ export default function App() {
           setLoading,
           showModal,
           setShowModal,
-          modalContent,
-          setModalContent,
+          setShowErrorModal,
+          error,
+          setError,
         }}
       >
-        {/* TODO error handling here */}
-        {error && (
-          <div className="w-full flex flex-col justify-center items-center p-10">
-            ERROR
-          </div>
+        {!loading && (
+          <Modal showModal={showModal} setShowModal={setShowModal} />
         )}
 
         <div className="w-full flex flex-col justify-center items-center p-10">

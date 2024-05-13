@@ -16,13 +16,17 @@ export const RowLayout = ({ title, type }) => {
   const newDirectoryPath = "/files?path=" + currentDirectory + nextDirTitle;
 
   const handleNavigateIntoFolder = async () => {
-    setLoading(true);
-    const data = await fetchAllFoldersInPath(newDirectoryPath);
-    console.log(data);
-    setFolders(data);
+    try {
+      setLoading(true);
+      const data = await fetchAllFoldersInPath(newDirectoryPath);
+      setFolders(data);
+      setCurrentDirectory(currentDirectory + nextDirTitle);
 
-    setCurrentDirectory(currentDirectory + nextDirTitle);
-    setLoading(false);
+      setLoading(false);
+    } catch (error) {
+      // todo surface error from here
+      setLoading(false);
+    }
   };
 
   const handleDeleteFolder = async () => {
@@ -35,14 +39,23 @@ export const RowLayout = ({ title, type }) => {
     // room for improvement, instead of sending 2 api calls, it would be preferable
     // to store current data locally, and delete local reference when delete is succesful on the api
     // but as this is the first draft, 2 api calls is fine
-    setLoading(true);
-    await deleteFolder(body);
+    try {
+      setLoading(true);
+      await deleteFolder(body);
 
-    const data = await fetchAllFoldersInPath("/files?path=");
-    setFolders(data);
+      const currentPath =
+        currentDirectory !== ""
+          ? "/files?path=" + currentDirectory
+          : "/files?path=";
+      const data = await fetchAllFoldersInPath(currentPath);
+      setFolders(data);
 
-    setCurrentDirectory("");
-    setLoading(false);
+      setCurrentDirectory(currentDirectory !== "" ? currentDirectory : "");
+      setLoading(false);
+    } catch (error) {
+      // todo surface error from here
+      setLoading(false);
+    }
   };
 
   const handleRenameFolder = async () => {
