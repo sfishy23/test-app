@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { DirectoryContext } from "../../App";
 import { useApi } from "../../hooks/useApi";
-import { stringContainsSlash, trimStringAfterSlash } from "../../utils";
+import { stringContainsSlash, removeAfterLastSlash } from "../../utils";
 import { RowLayout, BackIcon, AddIcon, IconWrapper } from "../index";
 
 export const FolderLayout = ({ data }) => {
@@ -12,7 +12,6 @@ export const FolderLayout = ({ data }) => {
     setLoading,
     setFolders,
     setShowModal,
-    setError,
   } = useContext(DirectoryContext);
 
   if (!data) return null;
@@ -20,18 +19,18 @@ export const FolderLayout = ({ data }) => {
   const handleNavigateBack = async () => {
     const hasSlash = stringContainsSlash(currentDirectory);
 
-    const newDirectory = hasSlash ? trimStringAfterSlash(currentDirectory) : "";
+    const newDirectory = hasSlash
+      ? removeAfterLastSlash(currentDirectory, true)
+      : "";
+    console.log(newDirectory);
     const newPath = "/files?path=" + newDirectory;
-    try {
-      setLoading(true);
-      const data = await fetchAllFoldersInPath(newPath);
-      setFolders(data);
-      setCurrentDirectory(newDirectory !== "" ? newDirectory : "");
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      setError(error);
-    }
+    console.log(newPath);
+
+    setLoading(true);
+    const data = await fetchAllFoldersInPath(newPath);
+    setFolders(data);
+    setCurrentDirectory(newDirectory !== "" ? newDirectory : "");
+    setLoading(false);
   };
 
   const handleAddFolderModal = () => {

@@ -1,32 +1,31 @@
 import React, { useContext } from "react";
 import { DirectoryContext } from "../../App";
 import { useApi } from "../../hooks/useApi";
-import { BinIcon } from "../BinIcon";
-import { EditIcon } from "../EditIcon";
-import { IconWrapper } from "../IconWrapper";
+import { BinIcon, EditIcon, IconWrapper } from "../index";
+import { stringContainsSlash, removeAfterLastSlash } from "../../utils";
 
 export const RowLayout = ({ title, type }) => {
-  const { currentDirectory, setCurrentDirectory, setFolders, setLoading } =
-    useContext(DirectoryContext);
+  const {
+    currentDirectory,
+    setCurrentDirectory,
+    setFolders,
+    setLoading,
+    setShowModal,
+  } = useContext(DirectoryContext);
 
-  const { fetchAllFoldersInPath, deleteFolder } = useApi();
+  const { fetchAllFoldersInPath, deleteFolder, editFolderName } = useApi();
 
   const nextDirTitle = currentDirectory === "" ? title : "/" + title;
 
   const newDirectoryPath = "/files?path=" + currentDirectory + nextDirTitle;
 
   const handleNavigateIntoFolder = async () => {
-    try {
-      setLoading(true);
-      const data = await fetchAllFoldersInPath(newDirectoryPath);
-      setFolders(data);
-      setCurrentDirectory(currentDirectory + nextDirTitle);
-
-      setLoading(false);
-    } catch (error) {
-      // todo surface error from here
-      setLoading(false);
-    }
+    // dont need try catch here, as the errors are caught in the hook
+    setLoading(true);
+    const data = await fetchAllFoldersInPath(newDirectoryPath);
+    setFolders(data);
+    setCurrentDirectory(currentDirectory + nextDirTitle);
+    setLoading(false);
   };
 
   const handleDeleteFolder = async () => {
@@ -39,34 +38,22 @@ export const RowLayout = ({ title, type }) => {
     // room for improvement, instead of sending 2 api calls, it would be preferable
     // to store current data locally, and delete local reference when delete is succesful on the api
     // but as this is the first draft, 2 api calls is fine
-    try {
-      setLoading(true);
-      await deleteFolder(body);
-
-      const currentPath =
-        currentDirectory !== ""
-          ? "/files?path=" + currentDirectory
-          : "/files?path=";
-      const data = await fetchAllFoldersInPath(currentPath);
-      setFolders(data);
-
-      setCurrentDirectory(currentDirectory !== "" ? currentDirectory : "");
-      setLoading(false);
-    } catch (error) {
-      // todo surface error from here
-      setLoading(false);
-    }
-  };
-
-  const handleRenameFolder = async () => {
     setLoading(true);
-    // const data = await fetchAllFoldersInPath(newDirectoryPath);
+    await deleteFolder(body);
 
-    const data = await fetchAllFoldersInPath("/files?path=");
+    const currentPath =
+      currentDirectory !== ""
+        ? "/files?path=" + currentDirectory
+        : "/files?path=";
+    const data = await fetchAllFoldersInPath(currentPath);
     setFolders(data);
 
-    setCurrentDirectory("");
+    setCurrentDirectory(currentDirectory !== "" ? currentDirectory : "");
     setLoading(false);
+  };
+
+  const handleRenameFolder = () => {
+    setShowModal(true);
   };
 
   return (

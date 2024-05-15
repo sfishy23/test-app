@@ -4,8 +4,6 @@ Decided to use FETCH API due to the small scope of the project. Other option was
 
 Decided not to spend any time on media queries or catering to different sizes and shapes of various devices for now. Outside of scope.
 
-## `Dependencies`
-
 ## `Scripts`
 
 ### `npm run start`

@@ -63,11 +63,31 @@ export const useApi = () => {
     }
   };
 
+  const editFolderName = async (data = {}) => {
+    try {
+      const url = baseUrl + "/files";
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        setError("Network response error" + response.status);
+        throw new Error("Network response was not ok " + response.status);
+      }
+    } catch (e) {
+      setError(e);
+    }
+  };
+
   return {
     fetchAllFoldersInPath,
     setError,
     error,
     deleteFolder,
     createNewFolder,
+    editFolderName,
   };
 };

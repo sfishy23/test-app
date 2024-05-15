@@ -2,6 +2,8 @@ import React, { useEffect, useState, useContext } from "react";
 import { AddFolderForm } from "../index";
 import { useApi } from "hooks/useApi";
 import { DirectoryContext } from "../../App";
+import { removeAfterLastSlash } from "../../utils";
+import { CloseIcon } from "../index";
 
 export const Modal = ({ showModal, setShowModal }) => {
   const { setCurrentDirectory, currentDirectory, setFolders, setLoading } =
@@ -36,6 +38,30 @@ export const Modal = ({ showModal, setShowModal }) => {
     }
   };
 
+  const handleRenameFolder = async () => {
+    // const newName = "new";
+
+    const oldPath = currentDirectory + nextDirTitle;
+    const newPath = removeAfterLastSlash(oldPath) + folderFormName;
+
+    const body = {
+      oldPath: oldPath,
+      newPath: newPath,
+      isDirectory: true,
+    };
+
+    console.log(body);
+    setLoading(true);
+    // const data = await fetchAllFoldersInPath(newDirectoryPath);
+    // await editFolderName();
+
+    // const data = await fetchAllFoldersInPath("/files?path=");
+    // setFolders(data);
+
+    // setCurrentDirectory("");
+    setLoading(false);
+  };
+
   // reset form when newly opened
   useEffect(() => {
     if (showModal) {
@@ -55,9 +81,9 @@ export const Modal = ({ showModal, setShowModal }) => {
                     className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
                     onClick={() => setShowModal(false)}
                   >
-                    <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                      ×
-                    </span>
+                    <div className="h-8">
+                      <CloseIcon />
+                    </div>
                   </button>
                 </div>
                 <div className="relative p-6 flex-auto">
