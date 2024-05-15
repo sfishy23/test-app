@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { DirectoryContext } from "../../App";
 import { useApi } from "../../hooks/useApi";
 import { BinIcon, EditIcon, IconWrapper } from "../index";
-import { stringContainsSlash, removeAfterLastSlash } from "../../utils";
 
 export const RowLayout = ({ title, type }) => {
   const {
@@ -11,9 +10,10 @@ export const RowLayout = ({ title, type }) => {
     setFolders,
     setLoading,
     setShowModal,
+    setCurrentFolderName,
   } = useContext(DirectoryContext);
 
-  const { fetchAllFoldersInPath, deleteFolder, editFolderName } = useApi();
+  const { fetchAllFoldersInPath, deleteFolder } = useApi();
 
   const nextDirTitle = currentDirectory === "" ? title : "/" + title;
 
@@ -29,6 +29,7 @@ export const RowLayout = ({ title, type }) => {
   };
 
   const handleDeleteFolder = async () => {
+    // TODO add a confirmation step in the modal when deleting folder to ask if user is sure they want to delete
     const path = currentDirectory + nextDirTitle;
     const body = {
       path: path,
@@ -53,6 +54,7 @@ export const RowLayout = ({ title, type }) => {
   };
 
   const handleRenameFolder = () => {
+    setCurrentFolderName(title);
     setShowModal(true);
   };
 

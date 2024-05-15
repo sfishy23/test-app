@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { AddFolderForm } from "../index";
 import { useApi } from "hooks/useApi";
 import { DirectoryContext } from "../../App";
@@ -6,10 +6,17 @@ import { removeAfterLastSlash } from "../../utils";
 import { CloseIcon } from "../index";
 
 export const Modal = ({ showModal, setShowModal }) => {
-  const { setCurrentDirectory, currentDirectory, setFolders, setLoading } =
-    useContext(DirectoryContext);
+  const {
+    setCurrentDirectory,
+    currentDirectory,
+    setFolders,
+    setLoading,
+    currentFolderName,
+    setCurrentFolderName,
+  } = useContext(DirectoryContext);
   const [folderFormName, setFolderFormName] = useState("");
-  const { fetchAllFoldersInPath, createNewFolder } = useApi();
+  const { fetchAllFoldersInPath, createNewFolder, editFolderName } = useApi();
+  const modalInputRef = useRef(null);
 
   const handleSubmitAddFolder = async () => {
     if (folderFormName === "") return;
@@ -39,9 +46,7 @@ export const Modal = ({ showModal, setShowModal }) => {
   };
 
   const handleRenameFolder = async () => {
-    // const newName = "new";
-
-    const oldPath = currentDirectory + nextDirTitle;
+    const oldPath = currentDirectory + "/" + currentFolderName;
     const newPath = removeAfterLastSlash(oldPath) + folderFormName;
 
     const body = {
@@ -50,24 +55,46 @@ export const Modal = ({ showModal, setShowModal }) => {
       isDirectory: true,
     };
 
-    console.log(body);
     setLoading(true);
-    // const data = await fetchAllFoldersInPath(newDirectoryPath);
-    // await editFolderName();
+    await editFolderName(body);
 
-    // const data = await fetchAllFoldersInPath("/files?path=");
-    // setFolders(data);
+    const currentPath =
+      currentDirectory !== ""
+        ? "/files?path=" + currentDirectory
+        : "/files?path=";
 
-    // setCurrentDirectory("");
+    const data = await fetchAllFoldersInPath(currentPath);
+
+    setFolders(data);
+
+    setCurrentDirectory(currentDirectory !== "" ? currentDirectory : "");
     setLoading(false);
+    setShowModal(false);
   };
 
   // reset form when newly opened
   useEffect(() => {
     if (showModal) {
       setFolderFormName("");
+      if (modalInputRef) {
+        modalInputRef.current.focus();
+      }
     }
+    if (!showModal) {
+      setCurrentFolderName(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showModal]);
+
+  const handleSubmitModal = async () => {
+    // bit of a dirty solution here, but ran out of time. Modal was going to be fully configurable from a modal config
+    // object in the context, but since I needed to speed it up, its just using this currentFolderName value to toggle the form
+    if (!currentFolderName) {
+      await handleSubmitAddFolder();
+    } else {
+      await handleRenameFolder();
+    }
+  };
   return (
     <>
       {showModal ? (
@@ -76,7 +103,9 @@ export const Modal = ({ showModal, setShowModal }) => {
             <div className="relative w-auto my-6 mx-auto max-w-3xl">
               <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                 <div className="flex items-start justify-between p-5 border-b border-solid rounded-t">
-                  <h3 className="text-3xl font-semibold">Add folder</h3>
+                  <h3 className="text-3xl font-semibold">
+                    {!currentFolderName ? "Add Directory" : "Rename Directory"}
+                  </h3>
                   <button
                     className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
                     onClick={() => setShowModal(false)}
@@ -90,6 +119,7 @@ export const Modal = ({ showModal, setShowModal }) => {
                   <AddFolderForm
                     value={folderFormName}
                     setValue={(e) => setFolderFormName(e)}
+                    inputFieldRef={modalInputRef}
                   />
                 </div>
 
@@ -104,7 +134,7 @@ export const Modal = ({ showModal, setShowModal }) => {
                   <button
                     className="bg-primary text-white active:bg-accent-light font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                     type="button"
-                    onClick={() => handleSubmitAddFolder()}
+                    onClick={() => handleSubmitModal()}
                   >
                     Save
                   </button>

@@ -1,12 +1,3 @@
-const convertObjectToArray = (object) => {
-  let arr = Array.from(Object.entries(object), ([key, value]) => value);
-  return arr;
-};
-
-const removeLeadingSlash = (string) => {
-  return string.replace(/^\//, "");
-};
-
 const stringContainsSlash = (str) => {
   return str.includes("/");
 };
@@ -20,9 +11,4 @@ const removeAfterLastSlash = (str, inclSlash) => {
   }
 };
 
-export {
-  convertObjectToArray,
-  removeLeadingSlash,
-  stringContainsSlash,
-  removeAfterLastSlash,
-};
+export { stringContainsSlash, removeAfterLastSlash };

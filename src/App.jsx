@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Header, Loader, FolderLayout, Modal, ErrorModal } from "./components";
-import { convertObjectToArray } from "./utils";
 import { useApi } from "./hooks/useApi";
 
 export const DirectoryContext = React.createContext({});
@@ -9,6 +8,7 @@ export const DirectoryContext = React.createContext({});
 export default function App() {
   const [loading, setLoading] = useState(false);
   const [folders, setFolders] = useState(null);
+  const [currentFolderName, setCurrentFolderName] = useState(null);
   const [currentDirectory, setCurrentDirectory] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -78,6 +78,8 @@ export default function App() {
           setShowErrorModal,
           error,
           setError,
+          currentFolderName,
+          setCurrentFolderName,
         }}
       >
         {!loading && (
@@ -87,9 +89,7 @@ export default function App() {
         <div className="w-full flex flex-col justify-center items-center p-10">
           {(loading || !folders) && <Loader />}
 
-          {!loading && folders && (
-            <FolderLayout data={convertObjectToArray(folders)} />
-          )}
+          {!loading && folders && <FolderLayout data={folders} />}
         </div>
       </DirectoryContext.Provider>
     </div>
