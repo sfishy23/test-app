@@ -12,6 +12,10 @@ Due to time constraints and the fact that the project doesn't require much front
 
 User feedback will be handled via a configurable modal.
 
+## `Environment setup`
+
+The base url will need to be added to the .env file. The variable name is REACT_APP_API_FOLDERS. In the env file bind the url to this variable and ensure that react has access to it via process.env.
+
 ## `Scripts`
 
 ### `npm run start`
