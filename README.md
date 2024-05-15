@@ -1,3 +1,7 @@
+## `Project Description`
+
+A small react app built to work with a provided external api for navigating, displaying and editing a folder structure.
+
 ## `Technical Decisions`
 
 Decided to use FETCH API due to the small scope of the project. Other option was using Axios, but that would require more imports and for a small project like this I prefer to avoid external libraries if possible.
